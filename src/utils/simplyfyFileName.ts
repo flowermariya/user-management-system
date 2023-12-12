@@ -6,5 +6,5 @@ export const simplifyFileName = async (originalFileName) => {
     0,
     10
   );
-  return `TEST${fileNameWithoutExtensionLimited}_${0}.${extension}`;
+  return `profile_${fileNameWithoutExtensionLimited}_${0}.${extension}`;
 };

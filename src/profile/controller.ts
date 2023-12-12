@@ -1,4 +1,3 @@
-import { CreateProfileImageDto } from "./dto/uploadProfileImage.input";
 import Profile from "./model";
 import express from "express";
 import { HttpStatusCodes } from "../utils/status.code";
@@ -19,7 +18,7 @@ export const handleS3Image = async (req: any, res: express.Response) => {
 
     const result = await uploadProfileImage(req.file, req.query.user_id);
     return res
-      .status(200)
+      .status(HttpStatusCodes.OK)
       .json({ message: "File uploaded successfully", data: result });
   } catch (error) {
     return res
@@ -39,14 +38,21 @@ export const uploadProfileImage = async (file: File, user_id: string) => {
   };
 
   try {
-    await s3.upload(params).promise();
+    const res = await s3.upload(params).promise();
 
-    const newImage = new Profile({
-      profile_image_url: modifiedFileName,
+    const updateData = {
+      profile_image_url: res?.Location,
       user_id,
+    };
+
+    console.log("Update Params:", { user_id, updateData });
+
+    const newImage = await Profile.findOneAndUpdate({ user_id }, updateData, {
+      new: true,
+      upsert: true,
     });
 
-    await newImage.save();
+    console.log("findOneAndUpdate Result:", newImage);
 
     return newImage;
   } catch (error) {
