@@ -6,7 +6,7 @@ import {
   updateUser,
   deleteUser,
 } from "./controller";
-import { createValidation, updateValidation } from "../utils/validation";
+import { createValidation, updateValidation } from "./validation";
 
 const router = express.Router();
 

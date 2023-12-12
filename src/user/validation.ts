@@ -1,7 +1,7 @@
 import express from "express";
-import { CreateUserDto } from "../user/dto/createUser.input";
+import { CreateUserDto } from "./dto/createUser.input";
 import { validate } from "class-validator";
-import { UpdateUserDto } from "../user/dto/updateUser.input";
+import { UpdateUserDto } from "./dto/updateUser.input";
 
 export const createValidation = async (
   req: express.Request,

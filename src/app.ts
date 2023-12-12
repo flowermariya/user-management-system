@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import userRoutes from "./user/routes";
+import profileRoutes from "./profile/routes";
 
 const app = express();
 
@@ -12,7 +13,9 @@ mongoose
 
 app.use(express.json());
 
-app.use("/api", userRoutes);
+app.use("/user", userRoutes);
+
+app.use("/profile", profileRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`App listening on port ${process.env.PORT}`);
