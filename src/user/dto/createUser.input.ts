@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -24,6 +25,7 @@ export class CreateUserDto {
 
   @MinLength(10)
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsInt()

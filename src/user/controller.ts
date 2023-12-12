@@ -1,41 +1,37 @@
 import { CreateUserDto } from "./dto/createUser.input";
-import { validate } from "class-validator";
 import User from "./model";
 import express from "express";
 import { UpdateUserDto } from "./dto/updateUser.input";
+import { HttpStatusCodes } from "../utils/status.code";
 
 export async function createUser(req: express.Request, res: express.Response) {
   try {
     const createUserDto = new CreateUserDto(req?.body);
-    const validationErrors = await validate(createUserDto);
-
-    if (validationErrors.length > 0) {
-      const formattedErrors = validationErrors.map(
-        (error) => error.constraints
-      );
-      return res.status(400).json({ errors: formattedErrors });
-    }
 
     const newUser = new User(createUserDto);
     await newUser.save();
 
-    res.status(201).json({
+    res.status(HttpStatusCodes.CREATED).json({
       message: "User successfully created",
       user: newUser,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 }
 
 export async function getAllUsers(req: express.Request, res: express.Response) {
   try {
-    res.status(200).json({
+    res.status(HttpStatusCodes.OK).json({
       message: "Users retrieved successfully",
       users: await User.find(),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 }
 
@@ -47,16 +43,18 @@ export async function getUser(req: express.Request, res: express.Response) {
 
     if (!user) {
       res
-        .status(404)
+        .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No user found with ID ${req.params.id}` });
     }
 
-    res.status(200).json({
+    res.status(HttpStatusCodes.OK).json({
       message: `User with ID ${req.params.id} fetched successfully`,
       user,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 }
 
@@ -67,18 +65,10 @@ export async function updateUser(req: express.Request, res: express.Response) {
     });
 
     const updateUserDto = new UpdateUserDto(req?.body);
-    const validationErrors = await validate(updateUserDto);
-
-    if (validationErrors.length > 0) {
-      const formattedErrors = validationErrors.map(
-        (error) => error.constraints
-      );
-      return res.status(400).json({ errors: formattedErrors });
-    }
 
     if (!user) {
       res
-        .status(404)
+        .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No user found with ID ${req.params.id} to update` });
     }
 
@@ -90,12 +80,14 @@ export async function updateUser(req: express.Request, res: express.Response) {
       { new: true }
     );
 
-    res.status(200).json({
+    res.status(HttpStatusCodes.OK).json({
       message: `User with ID ${req.params.id} updated successfully`,
       updatedUser,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 }
 
@@ -107,7 +99,7 @@ export async function deleteUser(req: express.Request, res: express.Response) {
 
     if (!user) {
       res
-        .status(404)
+        .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No user found with ID ${req.params.id} to delete` });
     }
 
@@ -115,10 +107,12 @@ export async function deleteUser(req: express.Request, res: express.Response) {
       _id: req.params.id,
     });
 
-    res.status(200).json({
+    res.status(HttpStatusCodes.OK).json({
       message: `User with ID ${req.params.id} deleted successfully`,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
 }

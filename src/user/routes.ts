@@ -6,13 +6,14 @@ import {
   updateUser,
   deleteUser,
 } from "./controller";
+import { createValidation, updateValidation } from "../utils/validation";
 
 const router = express.Router();
 
-router.post("/createUser", createUser);
+router.post("/createUser", createValidation, createUser);
 router.get("/getAllUsers", getAllUsers);
 router.get("/getUser/:id", getUser);
-router.patch("/updateUser/:id", updateUser);
+router.patch("/updateUser/:id", updateValidation, updateUser);
 router.delete("/deleteUser/:id", deleteUser);
 
 export default router;
