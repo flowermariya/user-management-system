@@ -15,5 +15,5 @@ app.use(express.json());
 app.use("/api", userRoutes);
 
 app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port ${process.env.PORT}`);
+  console.log(`App listening on port ${process.env.PORT}`);
 });

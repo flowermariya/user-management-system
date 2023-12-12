@@ -1,23 +1,26 @@
+import { CreateUserDto } from "./dto/createUser.input";
+import { validate } from "class-validator";
 import User from "./model";
 import express from "express";
+import { UpdateUserDto } from "./dto/updateUser.input";
 
 export async function createUser(req: express.Request, res: express.Response) {
   try {
-    const { first_name, last_name, email, phone, gender, address } = req?.body;
+    const createUserDto = new CreateUserDto(req?.body);
+    const validationErrors = await validate(createUserDto);
 
-    const newUser = new User({
-      first_name,
-      last_name,
-      email,
-      phone,
-      gender,
-      address,
-    });
+    if (validationErrors.length > 0) {
+      const formattedErrors = validationErrors.map(
+        (error) => error.constraints
+      );
+      return res.status(400).json({ errors: formattedErrors });
+    }
 
+    const newUser = new User(createUserDto);
     await newUser.save();
 
     res.status(201).json({
-      message: "User created successfully",
+      message: "User successfully created",
       user: newUser,
     });
   } catch (error) {
@@ -27,9 +30,9 @@ export async function createUser(req: express.Request, res: express.Response) {
 
 export async function getAllUsers(req: express.Request, res: express.Response) {
   try {
-    res.status(201).json({
-      message: "All users fetched successfully",
-      user: await User.find(),
+    res.status(200).json({
+      message: "Users retrieved successfully",
+      users: await User.find(),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -44,12 +47,12 @@ export async function getUser(req: express.Request, res: express.Response) {
 
     if (!user) {
       res
-        .status(500)
-        .json({ message: `User with id ${req.params.id} Not Found` });
+        .status(404)
+        .json({ message: `No user found with ID ${req.params.id}` });
     }
 
-    res.status(201).json({
-      message: "User fetched successfully",
+    res.status(200).json({
+      message: `User with ID ${req.params.id} fetched successfully`,
       user,
     });
   } catch (error) {
@@ -63,26 +66,32 @@ export async function updateUser(req: express.Request, res: express.Response) {
       _id: req.params.id,
     });
 
-    const data = req.body;
+    const updateUserDto = new UpdateUserDto(req?.body);
+    const validationErrors = await validate(updateUserDto);
 
-    console.log(">>data", data);
+    if (validationErrors.length > 0) {
+      const formattedErrors = validationErrors.map(
+        (error) => error.constraints
+      );
+      return res.status(400).json({ errors: formattedErrors });
+    }
 
     if (!user) {
       res
-        .status(500)
-        .json({ message: `User with id ${req.params.id} Not Found To Update` });
+        .status(404)
+        .json({ message: `No user found with ID ${req.params.id} to update` });
     }
 
     const updatedUser = await User.findOneAndUpdate(
       {
         _id: req.params.id,
       },
-      { ...data },
+      { ...updateUserDto },
       { new: true }
     );
 
-    res.status(201).json({
-      message: "User updated successfully",
+    res.status(200).json({
+      message: `User with ID ${req.params.id} updated successfully`,
       updatedUser,
     });
   } catch (error) {
@@ -98,16 +107,16 @@ export async function deleteUser(req: express.Request, res: express.Response) {
 
     if (!user) {
       res
-        .status(500)
-        .json({ message: `User with id ${req.params.id} Not Found To Delete` });
+        .status(404)
+        .json({ message: `No user found with ID ${req.params.id} to delete` });
     }
 
     await User.findByIdAndDelete({
       _id: req.params.id,
     });
 
-    res.status(201).json({
-      message: "User deleted successfully",
+    res.status(200).json({
+      message: `User with ID ${req.params.id} deleted successfully`,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
