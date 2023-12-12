@@ -4,12 +4,29 @@ import express from "express";
 import { HttpStatusCodes } from "../utils/status.code";
 import AWS from "aws-sdk";
 import { File } from "multer";
-import { simplifyFileName } from "./utils/simplyfyFileName";
+import { simplifyFileName } from "../utils/simplyfyFileName";
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
 });
+
+export const handleS3Image = async (req: any, res: express.Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+
+    const result = await uploadProfileImage(req.file, req.query.user_id);
+    return res
+      .status(200)
+      .json({ message: "File uploaded successfully", data: result });
+  } catch (error) {
+    return res
+      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: "Error uploading file", error: error.message });
+  }
+};
 
 export const uploadProfileImage = async (file: File, user_id: string) => {
   const modifiedFileName = await simplifyFileName(file.originalname);

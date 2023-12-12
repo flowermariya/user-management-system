@@ -1,5 +1,6 @@
 import { CreateUserDto } from "./dto/createUser.input";
 import User from "./model";
+import Profile from "../profile/model";
 import express from "express";
 import { UpdateUserDto } from "./dto/updateUser.input";
 import { HttpStatusCodes } from "../utils/status.code";
@@ -37,15 +38,22 @@ export async function getAllUsers(req: express.Request, res: express.Response) {
 
 export async function getUser(req: express.Request, res: express.Response) {
   try {
-    const user = await User.findById({
+    const findUser = await User.findById({
       _id: req.params.id,
     });
 
-    if (!user) {
+    if (!findUser) {
       res
         .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No user found with ID ${req.params.id}` });
     }
+
+    const profileImage = await Profile.findOne({ user_id: req.params.id });
+
+    const user = {
+      ...findUser.toObject(),
+      profile_image: profileImage ? profileImage.profile_image_url : null,
+    };
 
     res.status(HttpStatusCodes.OK).json({
       message: `User with ID ${req.params.id} fetched successfully`,
