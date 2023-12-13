@@ -20,6 +20,6 @@ router.patch(
   updateValidation,
   updateUser
 );
-router.delete("/deleteUser/:id", deleteUser);
+router.delete("/deleteUser/:id", authenticateToken, deleteUser);
 
 export default router;

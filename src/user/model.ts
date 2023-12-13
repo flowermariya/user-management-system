@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import { baseSchemaFields } from "../base.model";
 
 const userSchema = new mongoose.Schema({
+  ...baseSchemaFields,
   first_name: {
     type: String,
     required: true,
@@ -12,10 +13,6 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    required: true,
-  },
-  password: {
-    type: String,
     required: true,
   },
   phone: {
@@ -32,12 +29,5 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.index({ email: 1 }, { unique: true });
-
-userSchema.pre("save", function (next) {
-  if (this.isModified("password") || this.isNew) {
-    this.password = bcrypt.hashSync(this.password, 10);
-  }
-  next();
-});
 
 export default mongoose.model("User", userSchema);
