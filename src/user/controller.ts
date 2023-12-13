@@ -1,5 +1,6 @@
 import { CreateUserDto } from "./dto/createUser.input";
 import User from "./model";
+import Authentication from "../login/model";
 import Profile from "../profile/model";
 import express from "express";
 import { UpdateUserDto } from "./dto/updateUser.input";
@@ -10,17 +11,23 @@ export async function createUser(req: express.Request, res: express.Response) {
     const createUserDto = new CreateUserDto(req?.body);
 
     const newUser = new User(createUserDto);
-    const userObject = newUser.toObject();
-    delete userObject.password;
     await newUser.save();
+
+    const newAuthentication = new Authentication({
+      email: createUserDto.email,
+      password: createUserDto.password,
+    });
+
+    await newAuthentication.save();
 
     res.status(HttpStatusCodes.CREATED).json({
       message: "User successfully created",
-      user: userObject,
+      user: newUser,
     });
   } catch (error) {
+    // Handling duplicate errors
     if (error.code === 11000) {
-      res.status(409).json({ message: "Email already exists" });
+      res.status(409).json({ message: `EmailId already exists` });
     } else {
       res
         .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -126,7 +133,7 @@ export async function deleteUser(req: any, res: express.Response) {
     if (req?.user?.userId !== req?.params?.id) {
       return res
         .status(HttpStatusCodes.UNAUTHORIZED)
-        .json({ message: "You are not authorized to update this user" });
+        .json({ message: "You are not authorized to delete this user" });
     }
 
     await User.findByIdAndDelete({
