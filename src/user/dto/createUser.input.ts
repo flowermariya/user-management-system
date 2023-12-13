@@ -3,10 +3,8 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
-  Length,
   MaxLength,
   MinLength,
 } from "class-validator";
@@ -27,6 +25,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @MinLength(5)
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 
   @IsInt()
   @IsNotEmpty()
@@ -52,5 +55,6 @@ export class CreateUserDto {
     this.phone = body.phone;
     this.gender = body.gender;
     this.address = body.address;
+    this.password = body.password;
   }
 }

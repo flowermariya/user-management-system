@@ -10,16 +10,22 @@ export async function createUser(req: express.Request, res: express.Response) {
     const createUserDto = new CreateUserDto(req?.body);
 
     const newUser = new User(createUserDto);
+    const userObject = newUser.toObject();
+    delete userObject.password;
     await newUser.save();
 
     res.status(HttpStatusCodes.CREATED).json({
       message: "User successfully created",
-      user: newUser,
+      user: userObject,
     });
   } catch (error) {
-    res
-      .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    if (error.code === 11000) {
+      res.status(409).json({ message: "Email already exists" });
+    } else {
+      res
+        .status(HttpStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
   }
 }
 
@@ -66,7 +72,7 @@ export async function getUser(req: express.Request, res: express.Response) {
   }
 }
 
-export async function updateUser(req: express.Request, res: express.Response) {
+export async function updateUser(req: any, res: express.Response) {
   try {
     const user = await User.findById({
       _id: req.params.id,
@@ -78,6 +84,12 @@ export async function updateUser(req: express.Request, res: express.Response) {
       res
         .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No user found with ID ${req.params.id} to update` });
+    }
+
+    if (req?.user?.userId !== req?.params?.id) {
+      return res
+        .status(HttpStatusCodes.UNAUTHORIZED)
+        .json({ message: "You are not authorized to update this user" });
     }
 
     const updatedUser = await User.findOneAndUpdate(
@@ -99,7 +111,7 @@ export async function updateUser(req: express.Request, res: express.Response) {
   }
 }
 
-export async function deleteUser(req: express.Request, res: express.Response) {
+export async function deleteUser(req: any, res: express.Response) {
   try {
     const user = await User.findById({
       _id: req?.params?.id,
@@ -109,6 +121,12 @@ export async function deleteUser(req: express.Request, res: express.Response) {
       res
         .status(HttpStatusCodes.NOT_FOUND)
         .json({ message: `No user found with ID ${req.params.id} to delete` });
+    }
+
+    if (req?.user?.userId !== req?.params?.id) {
+      return res
+        .status(HttpStatusCodes.UNAUTHORIZED)
+        .json({ message: "You are not authorized to update this user" });
     }
 
     await User.findByIdAndDelete({

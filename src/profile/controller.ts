@@ -45,14 +45,10 @@ export const uploadProfileImage = async (file: File, user_id: string) => {
       user_id,
     };
 
-    console.log("Update Params:", { user_id, updateData });
-
     const newImage = await Profile.findOneAndUpdate({ user_id }, updateData, {
       new: true,
       upsert: true,
     });
-
-    console.log("findOneAndUpdate Result:", newImage);
 
     return newImage;
   } catch (error) {

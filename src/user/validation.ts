@@ -2,6 +2,7 @@ import express from "express";
 import { CreateUserDto } from "./dto/createUser.input";
 import { validate } from "class-validator";
 import { UpdateUserDto } from "./dto/updateUser.input";
+import { HttpStatusCodes } from "../utils/status.code";
 
 export const createValidation = async (
   req: express.Request,
@@ -13,9 +14,10 @@ export const createValidation = async (
 
   if (validationErrors.length > 0) {
     const formattedErrors = validationErrors.map((error) => error.constraints);
-    return res.status(400).json({ errors: formattedErrors });
+    return res
+      .status(HttpStatusCodes.NOT_FOUND)
+      .json({ errors: formattedErrors });
   }
-
   next();
 };
 
@@ -29,7 +31,9 @@ export const updateValidation = async (
 
   if (validationErrors.length > 0) {
     const formattedErrors = validationErrors.map((error) => error.constraints);
-    return res.status(400).json({ errors: formattedErrors });
+    return res
+      .status(HttpStatusCodes.BAD_REQUEST)
+      .json({ errors: formattedErrors });
   }
   next();
 };
