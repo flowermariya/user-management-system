@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import userRoutes from "./user/routes";
 import profileRoutes from "./profile/routes";
+import loginRoutes from "./login/route";
 
 const app = express();
 
@@ -14,10 +15,8 @@ mongoose
 app.use(express.json());
 
 app.use("/user", userRoutes);
-
 app.use("/profile", profileRoutes);
-
-///// user image upload -> if exits update else create
+app.use("/login", loginRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`App listening on port ${process.env.PORT}`);
