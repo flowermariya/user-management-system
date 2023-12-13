@@ -33,9 +33,9 @@ export class CreateUserDto {
 
   @IsInt()
   @IsNotEmpty()
-  //   @Length(10, 10, {
-  //     message: "Phone number must be exactly 10 characters long",
-  //   })
+  @Length(10, 10, {
+    message: "Phone number must be exactly 10 characters long",
+  })
   phone: number;
 
   @IsEnum(UserGenderEnum)
